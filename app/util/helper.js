@@ -8,17 +8,17 @@ import axios from 'axios';
 import querystring from 'querystring';
 
 
+var AUTH_SERVER_BASE_URL = "https://sso-server.herokuapp.com/";
+
+var AUTH_AGENT_BASE_URL = "https://sso-agent-test.herokuapp.com/";
+
 var helpers = {
 
-
-    getOldStepsByStepId(stepId) {
-        return axios.get('/NHBooksCMS/admin/getOldSteps.action?stepId=' + stepId);
-    },
 
     login(data){
         return axios({
             method: 'post',
-            url: 'http://localhost:8090/login',
+            url: AUTH_SERVER_BASE_URL + '/login',
             data: data
         });
     },
@@ -26,7 +26,7 @@ var helpers = {
     signup(data) {
         return axios({
             method: 'post',
-            url: 'http://localhost:8090/signup',
+            url: AUTH_SERVER_BASE_URL + '/signup',
             data: data
         });
     },
@@ -34,7 +34,7 @@ var helpers = {
     getUserInfo(authHeader) {
         return axios({
             method: 'get',
-            url: 'http://localhost:8091/verifyToken',
+            url: AUTH_AGENT_BASE_URL + 'verifyToken',
             headers: {"Authentication" : authHeader}
         });
         // return axios.get('http://localhost:8091/verifyToken');

@@ -49,7 +49,7 @@ class Register extends React.Component {
                 } else {
                     console.log("Login successf ul");
                     var authHeader = response.headers["authentication"];
-                    this.showAlert(response.data.data, "info");
+                    this.showAlert(response.data.data, "success");
                     // this.props.onSuccessLogin(authHeader);
                 }
 
@@ -70,13 +70,13 @@ class Register extends React.Component {
 
                         <FormGroup>
                             <Col smOffset={3} sm={6}>
-                                {this.state.showAlert && <Alert bsStyle="danger" onDismiss={this.closeAlert.bind(this)}>
+                                {this.state.showAlert && <Alert bsStyle={this.state.alertStatus} onDismiss={this.closeAlert.bind(this)}>
                                     <p>{this.state.alertText}</p>
                                 </Alert>}
                             </Col>
                         </FormGroup>
 
-                        {!(this.state.alertStatus == "info") && <div>
+                        {!(this.state.alertStatus == "success") && <div>
                             <FormGroup controlId="formHorizontalName">
                                 <Col componentClass={ControlLabel} sm={2} smOffset={1}>
                                     Name

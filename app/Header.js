@@ -14,7 +14,7 @@ class Header extends React.Component {
 
     signInClick() {
         console.log("Sign In Button click");
-        this.props.changeView(false, true, false);
+        this.props.changeView(false, true, false, false);
     }
 
     signOutClick() {
@@ -24,11 +24,11 @@ class Header extends React.Component {
 
     registerButtonClick() {
         console.log("Register Button click");
-        this.props.changeView(false, false, true);
+        this.props.changeView(false, false, true, false);
     }
 
     resetHome() {
-        this.props.changeView(true, false, false);
+        this.props.changeView(true, false, false, false);
     }
 
     render() {

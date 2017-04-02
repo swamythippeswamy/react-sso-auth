@@ -21834,6 +21834,10 @@
 
 	var _Home2 = _interopRequireDefault(_Home);
 
+	var _Donate = __webpack_require__(471);
+
+	var _Donate2 = _interopRequireDefault(_Donate);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21857,8 +21861,8 @@
 	            home: true,
 	            signIn: false,
 	            register: false,
-	            jwtHeader: "",
-	            userInfo: {}
+	            donate: false,
+	            jwtHeader: ""
 	        };
 	        return _this;
 	    }
@@ -21874,11 +21878,12 @@
 	        }
 	    }, {
 	        key: "changeState",
-	        value: function changeState(home, signIn, register) {
+	        value: function changeState(home, signIn, register, donate) {
 	            this.setState({
 	                home: home,
 	                signIn: signIn,
-	                register: register
+	                register: register,
+	                donate: donate
 	            });
 	        }
 	    }, {
@@ -21890,15 +21895,7 @@
 	                signIn: false,
 	                register: false,
 	                jwtHeader: jwtHeader,
-	                userInfo: {}
-	            });
-	        }
-	    }, {
-	        key: "showUserInfo",
-	        value: function showUserInfo(userInfo) {
-	            console.log(userInfo);
-	            this.setState({
-	                userInfo: userInfo
+	                donate: false
 	            });
 	        }
 	    }, {
@@ -21909,7 +21906,7 @@
 	                signIn: false,
 	                register: false,
 	                jwtHeader: "",
-	                userInfo: {}
+	                donate: false
 	            });
 	        }
 	    }, {
@@ -21920,10 +21917,10 @@
 	                { className: "container" },
 	                _react2.default.createElement(_Header2.default, { changeView: this.changeState.bind(this), authHeader: this.state.jwtHeader,
 	                    onSignOut: this.signOut.bind(this) }),
-	                this.state.home && _react2.default.createElement(_Home2.default, { authHeader: this.state.jwtHeader, showUserInfo: this.showUserInfo.bind(this),
-	                    userInfo: this.state.userInfo }),
+	                this.state.home && _react2.default.createElement(_Home2.default, { authHeader: this.state.jwtHeader, changeView: this.changeState.bind(this) }),
 	                this.state.signIn && _react2.default.createElement(_Login2.default, { onSuccessLogin: this.onSuccessLogin.bind(this) }),
-	                this.state.register && _react2.default.createElement(_Register2.default, { onSuccessLogin: this.onSuccessLogin.bind(this) })
+	                this.state.register && _react2.default.createElement(_Register2.default, { onSuccessLogin: this.onSuccessLogin.bind(this) }),
+	                this.state.donate && _react2.default.createElement(_Donate2.default, { authHeader: this.state.jwtHeader })
 	            );
 	        }
 	    }]);
@@ -21974,7 +21971,7 @@
 	        key: 'signInClick',
 	        value: function signInClick() {
 	            console.log("Sign In Button click");
-	            this.props.changeView(false, true, false);
+	            this.props.changeView(false, true, false, false);
 	        }
 	    }, {
 	        key: 'signOutClick',
@@ -21986,12 +21983,12 @@
 	        key: 'registerButtonClick',
 	        value: function registerButtonClick() {
 	            console.log("Register Button click");
-	            this.props.changeView(false, false, true);
+	            this.props.changeView(false, false, true, false);
 	        }
 	    }, {
 	        key: 'resetHome',
 	        value: function resetHome() {
-	            this.props.changeView(true, false, false);
+	            this.props.changeView(true, false, false, false);
 	        }
 	    }, {
 	        key: 'render',
@@ -41348,8 +41345,8 @@
 	    }
 
 	    _createClass(Login, [{
-	        key: "login",
-	        value: function login() {
+	        key: "emailLogin",
+	        value: function emailLogin() {
 	            console.log("Login click");
 
 	            var emailId = document.getElementById("formHorizontalEmail").value;
@@ -41359,6 +41356,11 @@
 	            data["password"] = password;
 	            data["accountType"] = "EMAIL";
 	            console.log(JSON.stringify(data));
+	            this.login(data);
+	        }
+	    }, {
+	        key: "login",
+	        value: function login(data) {
 	            _helper2.default.login(data).then(function (response) {
 	                console.log(response);
 	                if (response.status == 200) {
@@ -41397,6 +41399,19 @@
 	        key: "responseFacebook",
 	        value: function responseFacebook(response) {
 	            console.log(response);
+	            if (response == null) {
+	                alert("login failed");
+	                return;
+	            } else if (response["accessToken"] == null || response["accessToken"] == undefined) {
+	                alert("Empty access token recieved");
+	                return;
+	            }
+	            var data = {};
+	            data["email"] = response["email"];
+	            data["accountType"] = "FACEBOOK";
+	            data["token"] = response["accessToken"];
+	            console.log(JSON.stringify(data));
+	            this.login(data);
 	        }
 	    }, {
 	        key: "render",
@@ -41463,7 +41478,7 @@
 	                                { smOffset: 3, sm: 10 },
 	                                _react2.default.createElement(
 	                                    _reactBootstrap.Button,
-	                                    { className: "btn-primary", onClick: this.login.bind(this) },
+	                                    { className: "btn-primary", onClick: this.emailLogin.bind(this) },
 	                                    "Submit"
 	                                )
 	                            )
@@ -41478,11 +41493,12 @@
 	                            { smOffset: 3, sm: 4 },
 	                            _react2.default.createElement(_reactFacebookLogin2.default, {
 	                                appId: "388722371498856",
-	                                autoLoad: true,
+	                                autoLoad: false,
 	                                fields: "name,email",
 	                                callback: this.responseFacebook.bind(this),
 	                                cssClass: "btn-social btn-lg btn-facebook",
-	                                icon: "fa-facebook"
+	                                icon: "fa-facebook",
+	                                version: "v2.8"
 	                            })
 	                        )
 	                    )
@@ -41526,35 +41542,36 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var AUTH_SERVER_BASE_URL = "https://sso-server.herokuapp.com/"; /**
+	                                                                 * Created by swamy on 25/3/17.
+	                                                                 */
+
+	var AUTH_AGENT_BASE_URL = "https://sso-agent-test.herokuapp.com/";
+
 	var helpers = {
-	    getOldStepsByStepId: function getOldStepsByStepId(stepId) {
-	        return _axios2.default.get('/NHBooksCMS/admin/getOldSteps.action?stepId=' + stepId);
-	    },
 	    login: function login(data) {
 	        return (0, _axios2.default)({
 	            method: 'post',
-	            url: 'http://localhost:8090/login',
+	            url: AUTH_SERVER_BASE_URL + '/login',
 	            data: data
 	        });
 	    },
 	    signup: function signup(data) {
 	        return (0, _axios2.default)({
 	            method: 'post',
-	            url: 'http://localhost:8090/signup',
+	            url: AUTH_SERVER_BASE_URL + '/signup',
 	            data: data
 	        });
 	    },
 	    getUserInfo: function getUserInfo(authHeader) {
 	        return (0, _axios2.default)({
 	            method: 'get',
-	            url: 'http://localhost:8091/verifyToken',
+	            url: AUTH_AGENT_BASE_URL + 'verifyToken',
 	            headers: { "Authentication": authHeader }
 	        });
 	        // return axios.get('http://localhost:8091/verifyToken');
 	    }
-	}; /**
-	    * Created by swamy on 25/3/17.
-	    */
+	};
 
 	module.exports = helpers;
 
@@ -43298,7 +43315,7 @@
 	                    } else {
 	                        console.log("Login successf ul");
 	                        var authHeader = response.headers["authentication"];
-	                        this.showAlert(response.data.data, "info");
+	                        this.showAlert(response.data.data, "success");
 	                        // this.props.onSuccessLogin(authHeader);
 	                    }
 	                } else {
@@ -43329,7 +43346,7 @@
 	                                { smOffset: 3, sm: 6 },
 	                                this.state.showAlert && _react2.default.createElement(
 	                                    _reactBootstrap.Alert,
-	                                    { bsStyle: "danger", onDismiss: this.closeAlert.bind(this) },
+	                                    { bsStyle: this.state.alertStatus, onDismiss: this.closeAlert.bind(this) },
 	                                    _react2.default.createElement(
 	                                        "p",
 	                                        null,
@@ -43338,7 +43355,7 @@
 	                                )
 	                            )
 	                        ),
-	                        !(this.state.alertStatus == "info") && _react2.default.createElement(
+	                        !(this.state.alertStatus == "success") && _react2.default.createElement(
 	                            "div",
 	                            null,
 	                            _react2.default.createElement(
@@ -43459,18 +43476,7 @@
 	            if (!this.props.authHeader || this.props.authHeader == "") {
 	                alert("Please login to donate");
 	            } else {
-	                _helper2.default.getUserInfo(this.props.authHeader).then(function (response) {
-	                    if (response && response.status == 200 && response.data) {
-	                        console.log(response.data);
-	                        console.log(response.data.data);
-	                        var userInfo = {};
-	                        userInfo["name"] = response.data.data["userName"];
-	                        userInfo["email"] = response.data.data["emailId"];
-	                        this.props.showUserInfo(userInfo);
-	                    } else {
-	                        alert("Error in getting userdata");
-	                    }
-	                }.bind(this));
+	                this.props.changeView(false, false, false, true);
 	            }
 	        }
 	    }, {
@@ -43478,7 +43484,7 @@
 	        value: function render() {
 
 	            return _react2.default.createElement(
-	                'div',
+	                _reactBootstrap.Row,
 	                null,
 	                _react2.default.createElement(
 	                    _reactBootstrap.Row,
@@ -43491,9 +43497,10 @@
 	                    _react2.default.createElement(
 	                        'div',
 	                        null,
-	                        'Through our mid-day meal programme, our attempt is to feed the millions of children in India who have the zeal to learn and achieve, but not the means. By feeding them that one wholesome meal a day, we give them the motivation and nourishment they need to pursue an education and a better future. It is our endeavour to reach out to every child at the grass root level of the society.'
+	                        'Through our mid-day meal programme, our attempt is to feed the millions of children in India who have the zeal to learn and achieve, but not the means. By feeding them that one wholesome meal a day, we give them the motivation and nourishment they need to pursue an education and a better future. It is our endeavour to reach out to every child at the grass root level of the society. Please click the below button for Donating'
 	                    )
 	                ),
+	                _react2.default.createElement('br', null),
 	                _react2.default.createElement(
 	                    _reactBootstrap.Row,
 	                    null,
@@ -43501,42 +43508,6 @@
 	                        _reactBootstrap.Button,
 	                        { className: 'btn-primary', onClick: this.donateClick.bind(this) },
 	                        'Donate'
-	                    )
-	                ),
-	                this.props.userInfo && this.props.userInfo.name && this.props.userInfo.name != "" && _react2.default.createElement(
-	                    _reactBootstrap.Row,
-	                    null,
-	                    _react2.default.createElement(
-	                        _reactBootstrap.Col,
-	                        null,
-	                        _react2.default.createElement(
-	                            'span',
-	                            null,
-	                            'Name:'
-	                        ),
-	                        _react2.default.createElement(
-	                            'span',
-	                            null,
-	                            this.props.userInfo.name
-	                        )
-	                    )
-	                ),
-	                this.props.userInfo && this.props.userInfo.email && this.props.userInfo.email != "" && _react2.default.createElement(
-	                    _reactBootstrap.Row,
-	                    null,
-	                    _react2.default.createElement(
-	                        _reactBootstrap.Col,
-	                        null,
-	                        _react2.default.createElement(
-	                            'span',
-	                            null,
-	                            'Email:'
-	                        ),
-	                        _react2.default.createElement(
-	                            'span',
-	                            null,
-	                            this.props.userInfo.email
-	                        )
 	                    )
 	                )
 	            );
@@ -43547,12 +43518,154 @@
 	}(_react2.default.Component);
 
 	_react2.default.propTypes = {
-	    authHeader: _react2.default.PropTypes.string.isRequired,
-	    showUserInfo: _react2.default.PropTypes.func.isRequired,
-	    userInfo: _react2.default.PropTypes.object.isRequired
+	    changeView: _react2.default.PropTypes.func.isRequired,
+	    authHeader: _react2.default.PropTypes.string.isRequired
 	};
 
 	exports.default = Home;
+
+/***/ },
+/* 471 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(182);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(185);
+
+	var _helper = __webpack_require__(440);
+
+	var _helper2 = _interopRequireDefault(_helper);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /**
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Created by swamy on 2/4/17.
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
+
+	var Donate = function (_React$Component) {
+	    _inherits(Donate, _React$Component);
+
+	    function Donate(props) {
+	        _classCallCheck(this, Donate);
+
+	        var _this = _possibleConstructorReturn(this, (Donate.__proto__ || Object.getPrototypeOf(Donate)).call(this, props));
+
+	        _this.state = {
+	            userInfo: {}
+	        };
+	        return _this;
+	    }
+
+	    _createClass(Donate, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            _helper2.default.getUserInfo(this.props.authHeader).then(function (response) {
+	                if (response && response.status == 200 && response.data) {
+	                    console.log(response.data);
+	                    console.log(response.data.data);
+	                    var userData = {};
+	                    userData["name"] = response.data.data["userName"];
+	                    userData["email"] = response.data.data["emailId"];
+	                    this.setState({
+	                        userInfo: userData
+	                    });
+	                } else {
+	                    alert("Error in getting userdata");
+	                }
+	            }.bind(this));
+	        }
+	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps() {
+	            _helper2.default.getUserInfo(this.props.authHeader).then(function (response) {
+	                if (response && response.status == 200 && response.data) {
+	                    console.log(response.data);
+	                    console.log(response.data.data);
+	                    var userData = {};
+	                    userData["name"] = response.data.data["userName"];
+	                    userData["email"] = response.data.data["emailId"];
+	                    this.setState({
+	                        userInfo: userData
+	                    });
+	                } else {
+	                    alert("Error in getting userdata");
+	                }
+	            }.bind(this));
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            console.log(this.state.userInfo);
+	            return _react2.default.createElement(
+	                _reactBootstrap.Row,
+	                null,
+	                _react2.default.createElement(
+	                    _reactBootstrap.Jumbotron,
+	                    null,
+	                    this.state.userInfo && this.state.userInfo.name && this.state.userInfo.name != "" && _react2.default.createElement(
+	                        _reactBootstrap.Row,
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactBootstrap.Col,
+	                            null,
+	                            _react2.default.createElement(
+	                                'h2',
+	                                null,
+	                                'Hello, ',
+	                                this.state.userInfo.name
+	                            )
+	                        )
+	                    ),
+	                    this.state.userInfo && this.state.userInfo.email && this.state.userInfo.email != "" && _react2.default.createElement(
+	                        _reactBootstrap.Row,
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactBootstrap.Col,
+	                            null,
+	                            _react2.default.createElement(
+	                                'p',
+	                                null,
+	                                'Reciept will be sent to your emailId : ',
+	                                this.state.userInfo.email
+	                            ),
+	                            _react2.default.createElement(
+	                                'p',
+	                                null,
+	                                _react2.default.createElement(
+	                                    _reactBootstrap.Button,
+	                                    { bsStyle: 'primary' },
+	                                    'Change emailId'
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Donate;
+	}(_react2.default.Component);
+
+	_react2.default.propTypes = {
+	    authHeader: _react2.default.PropTypes.string.isRequired
+	};
+
+	exports.default = Donate;
 
 /***/ }
 /******/ ]);

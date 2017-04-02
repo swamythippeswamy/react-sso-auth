@@ -16,7 +16,7 @@ class Login extends React.Component {
         }
     }
 
-    login() {
+    emailLogin() {
         console.log("Login click");
 
         var emailId = document.getElementById("formHorizontalEmail").value;
@@ -26,6 +26,10 @@ class Login extends React.Component {
         data["password"] = password;
         data["accountType"] = "EMAIL";
         console.log(JSON.stringify(data));
+        this.login(data);
+    }
+
+    login(data) {
         helpers.login(data).then(function (response) {
             console.log(response);
             if (response.status == 200) {
@@ -62,6 +66,19 @@ class Login extends React.Component {
 
     responseFacebook(response) {
         console.log(response);
+        if(response == null) {
+            alert("login failed");
+            return;
+        } else if(response["accessToken"] == null || response["accessToken"] == undefined) {
+            alert("Empty access token recieved");
+            return;
+        }
+        let data = {};
+        data["email"] = response["email"];
+        data["accountType"] = "FACEBOOK";
+        data["token"] = response["accessToken"];
+        console.log(JSON.stringify(data));
+        this.login(data);
     }
 
     render() {
@@ -98,7 +115,7 @@ class Login extends React.Component {
 
                         <FormGroup>
                             <Col smOffset={3} sm={10}>
-                                <Button className="btn-primary" onClick={this.login.bind(this)}>
+                                <Button className="btn-primary" onClick={this.emailLogin.bind(this)}>
                                     Submit
                                 </Button>
                             </Col>
@@ -110,11 +127,12 @@ class Login extends React.Component {
                         <Col smOffset={3} sm={4}>
                             <FacebookLogin
                                 appId="388722371498856"
-                                autoLoad={true}
+                                    autoLoad={false}
                                 fields="name,email"
                                 callback={this.responseFacebook.bind(this)}
                                 cssClass="btn-social btn-lg btn-facebook"
                                 icon="fa-facebook"
+                                version="v2.8"
                             />
                         </Col>
 
